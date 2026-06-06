@@ -185,5 +185,110 @@ public:
         Assert::IsFalse(errors.empty());
         Assert::AreEqual((int)invalidFormatError, (int)errors.begin()->type);
     }
+
+    TEST_METHOD(InvalidCharacter) {
+        std::string content =
+            "4\n"
+            "7\n"
+            "# # . . . . #\n"
+            "# . X # # . #\n"
+            "# . . . . . #\n"
+            "# # # # # # #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)invalidCharError, (int)errors.begin()->type);
+        Assert::AreEqual('X', errors.begin()->invalid_char);
+        Assert::AreEqual(2, errors.begin()->row_number);
+    }
+
+    TEST_METHOD(AllWalls) {
+        std::string content =
+            "4\n"
+            "7\n"
+            "# # # # # # #\n"
+            "# # # # # # #\n"
+            "# # # # # # #\n"
+            "# # # # # # #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)noPassageError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(AllPassages) {
+        std::string content =
+            "3\n"
+            "3\n"
+            ". . .\n"
+            ". . .\n"
+            ". . .\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsTrue(errors.empty());
+    }
+
+    TEST_METHOD(NoEmptyLines) {
+        std::string content =
+            "4\n"
+            "7\n"
+            "# # # . # . #\n"
+            "# . . . . . #\n"
+            "# . . . . . #\n"
+            "# # # # # # #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsTrue(errors.empty());
+    }
+
+    TEST_METHOD(Maze2x2OnePassage) {
+        std::string content =
+            "2\n"
+            "2\n"
+            "# .\n"
+            "# #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+        Assert::IsTrue(errors.empty());
+        Assert::IsTrue(maze.getCell(0, 0).isWall);
+        Assert::IsFalse(maze.getCell(0, 1).isWall);
+    }
+
+    TEST_METHOD(Maze3x3CenterPassage) {
+        std::string content =
+            "3\n"
+            "3\n"
+            "# # #\n"
+            "# . #\n"
+            "# # #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+        Assert::IsTrue(errors.empty());
+        Assert::IsTrue(maze.getCell(0, 0).isWall);
+        Assert::IsFalse(maze.getCell(1, 1).isWall);
+        Assert::IsTrue(maze.getCell(2, 2).isWall);
+    }
     };
 }
