@@ -156,5 +156,100 @@ public:
         Assert::IsFalse(errors.empty());
         Assert::AreEqual((int)invalidFormatError, (int)errors.begin()->type);
     }
+
+    TEST_METHOD(NegativeCoord) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "-1 5\n"
+            "2 3\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)coordOutOfBoundsError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(StartRowOutOfBounds) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "99 5\n"
+            "3 2\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)coordOutOfBoundsError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(StartColOutOfBounds) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "1 10\n"
+            "3 2\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)coordOutOfBoundsError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(EndRowOutOfBounds) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "0 5\n"
+            "99 2\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)coordOutOfBoundsError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(EndColOutOfBounds) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "0 5\n"
+            "3 10\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)coordOutOfBoundsError, (int)errors.begin()->type);
+    }
     };
 }
