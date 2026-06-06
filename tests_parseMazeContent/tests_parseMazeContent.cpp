@@ -59,5 +59,131 @@ public:
         Assert::AreEqual(255, maze.getRows());
         Assert::AreEqual(255, maze.getCols());
     }
+
+    TEST_METHOD(ZeroRows) {
+        std::string content =
+            "0\n"
+            "7\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)outOfRangeError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(RowsOutOfRange) {
+        std::string content =
+            "256\n"
+            "7\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)outOfRangeError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(ZeroCols) {
+        std::string content =
+            "4\n"
+            "0\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)outOfRangeError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(ColsOutOfRange) {
+        std::string content =
+            "4\n"
+            "256\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)outOfRangeError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(FirstLineNotInteger) {
+        std::string content =
+            "abc\n"
+            "7\n"
+            "# # . . . . #\n"
+            "# . . # # . #\n"
+            "# . . . . . #\n"
+            "# # # # # # #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)invalidFormatError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(SecondLineNotInteger) {
+        std::string content =
+            "4\n"
+            "abc\n"
+            "# # . . . . #\n"
+            "# . . # # . #\n"
+            "# . . . . . #\n"
+            "# # # # # # #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)invalidFormatError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(FewerRowsThanDeclared) {
+        std::string content =
+            "4\n"
+            "7\n"
+            "# # . . . . #\n"
+            "# . . # # . #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)invalidFormatError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(WrongRowLength) {
+        std::string content =
+            "4\n"
+            "7\n"
+            "# # . . . . #\n"
+            "# . . #\n"
+            "# . . . . . #\n"
+            "# # # # # # #\n";
+
+        Maze maze;
+        std::set<Error> errors;
+
+        parseMazeContent(content, maze, errors);
+
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)invalidFormatError, (int)errors.begin()->type);
+    }
     };
 }
