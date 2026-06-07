@@ -251,5 +251,89 @@ public:
         Assert::IsFalse(errors.empty());
         Assert::AreEqual((int)coordOutOfBoundsError, (int)errors.begin()->type);
     }
+
+    TEST_METHOD(FloatCoords) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "1.5 2\n"
+            "3 4\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+
+        bool hasError = false;
+        for (const auto& error : errors) {
+            if (error.type == extraDataError || error.type == invalidFormatError) {
+                hasError = true;
+            }
+        }
+
+        Assert::IsTrue(hasError);
+    }
+
+    TEST_METHOD(StartIsWall) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "0 0\n"
+            "2 3\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)startIsWallError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(EndIsWall) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "0 5\n"
+            "3 0\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)endIsWallError, (int)errors.begin()->type);
+    }
+
+    TEST_METHOD(SamePoints) {
+        Maze maze = makeMaze4x7();
+        std::string content =
+            "0 5\n"
+            "0 5\n";
+
+        std::set<Error> errors;
+        int sr = 0;
+        int sc = 0;
+        int er = 0;
+        int ec = 0;
+
+        bool result = parseCoordsContent(content, maze, sr, sc, er, ec, errors);
+
+        Assert::IsFalse(result);
+        Assert::IsFalse(errors.empty());
+        Assert::AreEqual((int)pointsSameError, (int)errors.begin()->type);
+    }
     };
 }
