@@ -1,7 +1,9 @@
 #include "PathFinder.h"
 #include <queue>
+#include <algorithm>
 
-PathFinder::PathFinder(Maze& m, int sr, int sc, int er, int ec) : maze(&m), startRow(sr), startCol(sc), endRow(er), endCol(ec) {}
+PathFinder::PathFinder(Maze& m, int sr, int sc, int er, int ec): maze(&m), startRow(sr), startCol(sc), endRow(er), endCol(ec) {}
+
 std::vector<Cell*> PathFinder::findPath() {
     maze->reset();
 
@@ -14,6 +16,7 @@ std::vector<Cell*> PathFinder::findPath() {
     q.push(&startCell);
 
     bool found = false;
+    Cell* endCell = nullptr;
 
     const int dx[] = { 0, 0, -1, 1 };
     const int dy[] = { -1, 1, 0, 0 };
@@ -24,6 +27,7 @@ std::vector<Cell*> PathFinder::findPath() {
 
         if (current->x == endCol && current->y == endRow) {
             found = true;
+            endCell = current;
         }
         else {
             for (int direction = 0; direction < 4 && !found; ++direction) {
@@ -44,5 +48,20 @@ std::vector<Cell*> PathFinder::findPath() {
         }
     }
 
-    return std::vector<Cell*>();
+    if (!found) {
+        return std::vector<Cell*>();
+    }
+
+    std::vector<Cell*> result;
+    Cell* current = endCell;
+
+    while (current != nullptr) {
+        result.push_back(current);
+        current = current->parent;
+    }
+
+    std::reverse(result.begin(), result.end());
+
+    path = result;
+    return result;
 }
