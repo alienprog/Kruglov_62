@@ -2,10 +2,10 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\Kruglov_62\shortest_path\Debug\shortest_path.exe</FullPath>
+      <FullPath>D:\Kruglov_62\Debug\shortest_path.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\Kruglov_62\shortest_path\Debug\tests_parseMazeContent.dll</FullPath>
+      <FullPath>D:\Kruglov_62\Debug\tests_parseMazeContent.dll</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
