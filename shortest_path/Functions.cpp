@@ -47,12 +47,19 @@ void parseMazeContent(const std::string& content, Maze& maze, std::set<Error>& e
             line.pop_back();
         }
 
-        if ((int)line.size() != cols) {
-            errors.insert(Error(invalidFormatError, actualRows + 1, 0, (int)line.size(), cols));
+        std::string cells;
+        for (char ch : line) {
+            if (ch != ' ' && ch != '\t') {
+                cells += ch;
+            }
+        }
+
+        if ((int)cells.size() != cols) {
+            errors.insert(Error(invalidFormatError, actualRows + 1, 0, (int)cells.size(), cols));
         }
         else {
             for (int col = 0; col < cols; ++col) {
-                char ch = line[col];
+                char ch = cells[col];
 
                 if (ch != '.' && ch != '#') {
                     errors.insert(Error(invalidCharError, actualRows + 1, col + 1, 0, 0, ch));
