@@ -167,6 +167,45 @@ bool parseCoordsContent(const std::string& content, const Maze& maze,
         return false;
     }
 
+    const int rows = maze.getRows();
+    const int cols = maze.getCols();
+
+    if (sr < 0 || sr >= rows) {
+        errors.insert(Error(coordOutOfBoundsError, 0, 0, sr, rows));
+    }
+
+    if (sc < 0 || sc >= cols) {
+        errors.insert(Error(coordOutOfBoundsError, 0, 0, sc, cols));
+    }
+
+    if (er < 0 || er >= rows) {
+        errors.insert(Error(coordOutOfBoundsError, 0, 0, er, rows));
+    }
+
+    if (ec < 0 || ec >= cols) {
+        errors.insert(Error(coordOutOfBoundsError, 0, 0, ec, cols));
+    }
+
+    if (!errors.empty()) {
+        return false;
+    }
+
+    if (maze.getCell(sr, sc).isWall) {
+        errors.insert(Error(startIsWallError, sr, sc));
+    }
+
+    if (maze.getCell(er, ec).isWall) {
+        errors.insert(Error(endIsWallError, er, ec));
+    }
+
+    if (sr == er && sc == ec) {
+        errors.insert(Error(pointsSameError));
+    }
+
+    if (!errors.empty()) {
+        return false;
+    }
+
     startRow = sr;
     startCol = sc;
     endRow = er;
