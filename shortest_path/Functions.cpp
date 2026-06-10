@@ -110,5 +110,67 @@ bool parseCoordsContent(const std::string& content, const Maze& maze,
     int& startRow, int& startCol,
     int& endRow, int& endCol,
     std::set<Error>& errors) {
-    return false;
+    std::istringstream stream(content);
+
+    std::string line1;
+    std::string line2;
+
+    if (!std::getline(stream, line1)) {
+        errors.insert(Error(invalidFormatError));
+        return false;
+    }
+
+    if (!line1.empty() && line1.back() == '\r') {
+        line1.pop_back();
+    }
+
+    if (!std::getline(stream, line2)) {
+        errors.insert(Error(invalidFormatError));
+        return false;
+    }
+
+    if (!line2.empty() && line2.back() == '\r') {
+        line2.pop_back();
+    }
+
+    bool hasExtra = false;
+    std::string line3;
+
+    while (!hasExtra && std::getline(stream, line3)) {
+        if (!line3.empty() && line3.back() == '\r') {
+            line3.pop_back();
+        }
+
+        std::istringstream check(line3);
+        int tmp = 0;
+
+        if (check >> tmp) {
+            hasExtra = true;
+        }
+    }
+
+    if (hasExtra) {
+        errors.insert(Error(extraDataError));
+        return false;
+    }
+
+    int sr = 0;
+    int sc = 0;
+    int er = 0;
+    int ec = 0;
+
+    if (!parseTwoInts(line1, 1, sr, sc, errors)) {
+        return false;
+    }
+
+    if (!parseTwoInts(line2, 2, er, ec, errors)) {
+        return false;
+    }
+
+    startRow = sr;
+    startCol = sc;
+    endRow = er;
+    endCol = ec;
+
+    return true;
 }
