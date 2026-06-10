@@ -90,7 +90,20 @@ void parseMazeContent(const std::string& content, Maze& maze, std::set<Error>& e
 }
 
 bool parseTwoInts(const std::string& line, int lineNum, int& a, int& b, std::set<Error>& errors) {
-    return false;
+    std::istringstream ss(line);
+
+    if (!(ss >> a >> b)) {
+        errors.insert(Error(invalidFormatError, lineNum));
+        return false;
+    }
+
+    int extra = 0;
+    if (ss >> extra) {
+        errors.insert(Error(extraDataError, lineNum));
+        return false;
+    }
+
+    return true;
 }
 
 bool parseCoordsContent(const std::string& content, const Maze& maze,
