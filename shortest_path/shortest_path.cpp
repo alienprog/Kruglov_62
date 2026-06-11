@@ -86,5 +86,55 @@ void printErrors(const std::set<Error>& errors) {
 }
 
 int main(int argc, char* argv[]) {
+    if (argc > 4) {
+        std::cerr << Error(tooManyArgumentsError).generate_error_message() << std::endl;
+        return 1;
+    }
+
+    if (argc < 4) {
+        std::cerr << Error(tooFewArgumentsError).generate_error_message() << std::endl;
+        return 1;
+    }
+
+    std::set<Error> errors;
+    std::string content;
+    Maze maze;
+
+    int startRow = 0;
+    int startCol = 0;
+    int endRow = 0;
+    int endCol = 0;
+
+    readMazeFile(argv[1], content, errors);
+
+    if (errors.empty()) {
+        parseMazeContent(content, maze, errors);
+    }
+
+    if (errors.empty()) {
+        readCoordsFile(argv[2], content, errors);
+    }
+
+    if (errors.empty()) {
+        parseCoordsContent(content, maze,
+            startRow, startCol,
+            endRow, endCol,
+            errors);
+    }
+
+    if (!errors.empty()) {
+        printErrors(errors);
+        return 1;
+    }
+
+    PathFinder pathFinder(maze, startRow, startCol, endRow, endCol);
+    std::vector<Cell*> path = pathFinder.findPath();
+
+    if (!writeResult(argv[3], path)) {
+        std::cerr << "Invalid output file. The specified path may not exist "
+            "or you may not have write permissions." << std::endl;
+        return 1;
+    }
+
     return 0;
 }
