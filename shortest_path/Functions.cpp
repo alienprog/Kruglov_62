@@ -120,63 +120,133 @@ bool parseTwoInts(const std::string& line, int lineNum, int& a, int& b, std::set
  * @param errors набор ошибок
  * @return true если успешно, false при ошибке
  */
+
 bool parseCoordsContent(const std::string& content, const Maze& maze,
     int& startRow, int& startCol,
     int& endRow, int& endCol,
     std::set<Error>& errors) {
     std::istringstream stream(content);
 
-    // Чтение двух строк с координатами
-    std::string line1, line2;
-    if (!std::getline(stream, line1)) {
-        errors.insert(Error(invalidFormatError));
-        return false;
-    }
-    if (!line1.empty() && line1.back() == '\r') line1.pop_back();
-
-    if (!std::getline(stream, line2)) {
-        errors.insert(Error(invalidFormatError));
-        return false;
-    }
-    if (!line2.empty() && line2.back() == '\r') line2.pop_back();
-
-    // Проверка отсутствия лишних строк после координат
-    bool hasExtra = false;
+    std::string line1;
+    std::string line2;
     std::string line3;
-    while (!hasExtra && std::getline(stream, line3)) {
-        if (!line3.empty() && line3.back() == '\r') line3.pop_back();
+
+    bool hasFirstLine = false;
+    bool hasSecondLine = false;
+
+    // Читаем первую строку с координатами начальной точки.
+    if (std::getline(stream, line1)) {
+        hasFirstLine = true;
+
+        if (!line1.empty() && line1.back() == '\r') {
+            line1.pop_back();
+        }
+    }
+    else {
+        errors.insert(Error(invalidFormatError));
+    }
+
+    // Читаем вторую строку с координатами конечной точки.
+    if (std::getline(stream, line2)) {
+        hasSecondLine = true;
+
+        if (!line2.empty() && line2.back() == '\r') {
+            line2.pop_back();
+        }
+    }
+    else {
+        errors.insert(Error(invalidFormatError));
+    }
+
+    // Проверяем, нет ли лишних строк после двух строк с координатами.
+    while (std::getline(stream, line3)) {
+        if (!line3.empty() && line3.back() == '\r') {
+            line3.pop_back();
+        }
+
         std::istringstream check(line3);
         int tmp;
-        if (check >> tmp) hasExtra = true;
-    }
-    if (hasExtra) {
-        errors.insert(Error(extraDataError));
-        return false;
+
+        if (check >> tmp) {
+            errors.insert(Error(extraDataError));
+            break;
+        }
     }
 
-    // Разбор координат
-    int sr = 0, sc = 0, er = 0, ec = 0;
-    if (!parseTwoInts(line1, 1, sr, sc, errors)) return false;
-    if (!parseTwoInts(line2, 2, er, ec, errors)) return false;
+    // Берём текущие значения выходных параметров как значения по умолчанию.
+    int sr = startRow;
+    int sc = startCol;
+    int er = endRow;
+    int ec = endCol;
+
+    bool startParsed = false;
+    bool endParsed = false;
+
+    // Разбираем координаты начальной точки.
+    if (hasFirstLine) {
+        startParsed = parseTwoInts(line1, 1, sr, sc, errors);
+    }
+
+    // Разбираем координаты конечной точки.
+    if (hasSecondLine) {
+        endParsed = parseTwoInts(line2, 2, er, ec, errors);
+    }
+
+    // Сохраняем распарсенные значения сразу, даже если дальше найдутся ошибки.
+    startRow = sr;
+    startCol = sc;
+    endRow = er;
+    endCol = ec;
 
     const int rows = maze.getRows();
     const int cols = maze.getCols();
 
-    // Проверка выхода за границы
-    if (sr < 0 || sr >= rows) errors.insert(Error(coordOutOfBoundsError, 0, 0, sr, rows));
-    if (sc < 0 || sc >= cols) errors.insert(Error(coordOutOfBoundsError, 0, 0, sc, cols));
-    if (er < 0 || er >= rows) errors.insert(Error(coordOutOfBoundsError, 0, 0, er, rows));
-    if (ec < 0 || ec >= cols) errors.insert(Error(coordOutOfBoundsError, 0, 0, ec, cols));
-    if (!errors.empty()) return false;
+    bool startInBounds = startParsed;
+    bool endInBounds = endParsed;
 
-    // Проверка, что точки не являются стенами
-    if (maze.getCell(sr, sc).isWall) errors.insert(Error(startIsWallError, sr, sc));
-    if (maze.getCell(er, ec).isWall) errors.insert(Error(endIsWallError, er, ec));
-    if (sr == er && sc == ec)        errors.insert(Error(pointsSameError));
-    if (!errors.empty()) return false;
+    // Проверяем границы начальной точки.
+    if (startParsed) {
+        if (sr < 0 || sr >= rows) {
+            errors.insert(Error(coordOutOfBoundsError, 1, 1, sr, rows));
+            startInBounds = false;
+        }
 
-    // Сохранение координат
-    startRow = sr; startCol = sc;
-    endRow = er; endCol = ec;
-    return true;
+        if (sc < 0 || sc >= cols) {
+            errors.insert(Error(coordOutOfBoundsError, 1, 2, sc, cols));
+            startInBounds = false;
+        }
+    }
+
+    // Проверяем границы конечной точки.
+    if (endParsed) {
+        if (er < 0 || er >= rows) {
+            errors.insert(Error(coordOutOfBoundsError, 2, 1, er, rows));
+            endInBounds = false;
+        }
+
+        if (ec < 0 || ec >= cols) {
+            errors.insert(Error(coordOutOfBoundsError, 2, 2, ec, cols));
+            endInBounds = false;
+        }
+    }
+
+    // Проверяем, не является ли начальная точка стеной.
+    if (startInBounds && maze.getCell(sr, sc).isWall) {
+        errors.insert(Error(startIsWallError, sr, sc));
+    }
+
+    // Проверяем, не является ли конечная точка стеной.
+    if (endInBounds && maze.getCell(er, ec).isWall) {
+        errors.insert(Error(endIsWallError, er, ec));
+    }
+
+    // Проверяем, не совпадают ли начальная и конечная точки.
+    if (startParsed && endParsed && sr == er && sc == ec) {
+        errors.insert(Error(pointsSameError));
+    }
+
+    // Если ошибок нет, координаты корректны.
+    return errors.empty();
 }
+
+
