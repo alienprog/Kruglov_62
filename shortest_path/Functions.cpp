@@ -26,12 +26,12 @@ void parseMazeContent(const std::string& content, Maze& maze, std::set<Error>& e
     }
     // Проверить допустимость размеров
     bool rangeOk = true;
-    if (rows < 1 || rows > 255) {
-        errors.insert(Error(outOfRangeError, 0, 0, rows, 255));
+    if (rows < MIN_MAZE_SIZE || rows > MAX_MAZE_SIZE) {
+        errors.insert(Error(outOfRangeError, 0, 0, rows, MAX_MAZE_SIZE));
         rangeOk = false;
     }
-    if (cols < 1 || cols > 255) {
-        errors.insert(Error(outOfRangeError, 0, 0, cols, 255));
+    if (cols < MIN_MAZE_SIZE || cols > MAX_MAZE_SIZE) {
+        errors.insert(Error(outOfRangeError, 0, 0, cols, MAX_MAZE_SIZE));
         rangeOk = false;
     }
     if (!rangeOk) return;
@@ -60,16 +60,16 @@ void parseMazeContent(const std::string& content, Maze& maze, std::set<Error>& e
         else {
             for (int c = 0; c < cols; ++c) {
                 char ch = cells[c];
-                if (ch != '.' && ch != '#') {
+                if (ch != PASSAGE_CHAR && ch != WALL_CHAR) {
                     errors.insert(Error(invalidCharError, actualRows + 1, c + 1,
                         0, 0, ch));
                 }
                 else {
                     Cell& cell = maze.getCell(actualRows, c);
-                    cell.isWall = (ch == '#');
+                    cell.isWall = (ch == WALL_CHAR);
                     cell.x = c;
                     cell.y = actualRows;
-                    if (ch == '.') hasPassage = true;
+                    if (ch == PASSAGE_CHAR) hasPassage = true;
                 }
             }
         }

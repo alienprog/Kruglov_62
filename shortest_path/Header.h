@@ -83,6 +83,13 @@
 #include "Maze.h"
 #include "Cell.h"
 
+// Символы лабиринта
+#define WALL_CHAR    '#'
+#define PASSAGE_CHAR '.'
+
+// Границы допустимых размеров лабиринта
+#define MIN_MAZE_SIZE 1
+#define MAX_MAZE_SIZE 255
    /**
     * @ingroup shortest_path
     * @brief Читает содержимое файла лабиринта в строку.
