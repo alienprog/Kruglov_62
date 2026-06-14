@@ -8,29 +8,41 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace testsPathFinder {
     TEST_CLASS(testsPathFinder) {
 public:
-    // Вспомогательная функция: строит лабиринт из строки
+
+    // Вспомогательная функция: строит лабиринт из строки.
     Maze buildMaze(const std::string& content) {
         Maze maze;
         std::set<Error> errors;
         parseMazeContent(content, maze, errors);
         return maze;
     }
-    // Вспомогательная функция: путь в строку вида "(r;c), (r;c),
-    std::string pathToString(const std::vector<Cell*>& path) {
-        std::string result;
 
-        for (std::size_t i = 0; i < path.size(); ++i) {
-            if (i > 0) {
-                result += ", ";
-            }
+    // Вспомогательная функция: преобразует путь в вектор пар (строка, столбец).
+    std::vector<std::pair<int, int>> pathToVectorPairInt(const std::vector<Cell*>& path) {
+        std::vector<std::pair<int, int>> result;
 
-            result += "(" + std::to_string(path[i]->y) + ";"
-                + std::to_string(path[i]->x) + ")";
+        for (Cell* cell : path) {
+            result.push_back({ cell->y, cell->x });
         }
 
         return result;
     }
-    // Корректный путь
+
+    // Вспомогательная функция: сравнивает путь с ожидаемым вектором координат.
+    void assertPathEquals(const std::vector<Cell*>& path,
+        const std::vector<std::pair<int, int>>& expectedPath) {
+
+        std::vector<std::pair<int, int>> actualPath = pathToVectorPairInt(path);
+
+        Assert::AreEqual(expectedPath.size(), actualPath.size());
+
+        for (std::size_t i = 0; i < expectedPath.size(); ++i) {
+            Assert::AreEqual(expectedPath[i].first, actualPath[i].first);
+            Assert::AreEqual(expectedPath[i].second, actualPath[i].second);
+        }
+    }
+
+    // Корректный путь.
     TEST_METHOD(CorrectPath) {
         std::string content =
             "4\n"
@@ -45,19 +57,15 @@ public:
 
         std::vector<Cell*> path = pathFinder.findPath();
 
+        std::vector<std::pair<int, int>> expectedPath = {
+            {0, 5}, {1, 5}, {2, 5}, {2, 4}, {2, 3}
+        };
+
         Assert::IsFalse(path.empty());
-        // Проверяем начало и конец пути
-        Assert::AreEqual(0, path.front()->y);
-        Assert::AreEqual(5, path.front()->x);
-        Assert::AreEqual(2, path.back()->y);
-        Assert::AreEqual(3, path.back()->x);
-        // Ожидаемый путь длиной 5
-        Assert::AreEqual((std::size_t)5, path.size());
-        // Ожидаемая последовательность
-        std::string expected = "(0;5), (1;5), (2;5), (2;4), (2;3)";
-        Assert::AreEqual(expected, pathToString(path));
+        assertPathEquals(path, expectedPath);
     }
-    // Путь не существует
+
+    // Путь не существует.
     TEST_METHOD(NoPath) {
         std::string content =
             "4\n"
@@ -74,6 +82,7 @@ public:
 
         Assert::IsTrue(path.empty());
     }
+
     // Два и более кратчайших пути
     TEST_METHOD(MultipleShortest) {
         std::string content =
@@ -89,18 +98,21 @@ public:
 
         std::vector<Cell*> path = pathFinder.findPath();
 
+        std::vector<std::pair<int, int>> actualPath = pathToVectorPairInt(path);
+
+        std::vector<std::pair<int, int>> firstPath = {
+            {0, 5}, {0, 4}, {0, 3}, {1, 3}, {2, 3}
+        };
+
+        std::vector<std::pair<int, int>> secondPath = {
+            {0, 5}, {1, 5}, {2, 5}, {2, 4}, {2, 3}
+        };
+
         Assert::IsFalse(path.empty());
-        // Начало и конец верные
-        Assert::AreEqual(0, path.front()->y);
-        Assert::AreEqual(5, path.front()->x);
-        Assert::AreEqual(2, path.back()->y);
-        Assert::AreEqual(3, path.back()->x);
-        // Оба кратчайших пути имеют длину 5
         Assert::AreEqual((std::size_t)5, path.size());
-        // Проверяем что путь один из двух допустимых
-        std::string actual = pathToString(path);
-        bool isFirst = actual == "(0;5), (0;4), (0;3), (1;3), (2;3)";
-        bool isSecond = actual == "(0;5), (1;5), (2;5), (2;4), (2;3)";
+
+        bool isFirst = actualPath == firstPath;
+        bool isSecond = actualPath == secondPath;
 
         Assert::IsTrue(isFirst || isSecond);
     }
