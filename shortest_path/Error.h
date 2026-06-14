@@ -42,15 +42,15 @@ struct Error {
     char      invalid_char; ///< недопустимый символ
 
     /**
-     * @brief Конструктор ошибки.
-     * @param t тип ошибки
-     * @param row номер строки (по умолчанию 0)
-     * @param col номер столбца (по умолчанию 0)
-     * @param val значение (по умолчанию 0)
-     * @param maxVal максимальное значение (по умолчанию 0)
-     * @param ch недопустимый символ (по умолчанию '\0')
-     */
-    Error(ErrorType t,
+    * @brief Конструктор ошибки.
+    * @param t тип ошибки
+    * @param row номер строки (по умолчанию 0)
+    * @param col номер столбца (по умолчанию 0)
+    * @param val значение (по умолчанию 0)
+    * @param maxVal максимальное значение (по умолчанию 0)
+    * @param ch недопустимый символ (по умолчанию '\0')
+    */
+    explicit Error(ErrorType t,
         int row = 0, int col = 0,
         int val = 0, int maxVal = 0,
         char ch = '\0')

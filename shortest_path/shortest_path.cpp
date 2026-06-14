@@ -75,7 +75,7 @@ void printErrors(const std::set<Error>& errors) {
 }
 
 // Главная функция программы
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
     // Проверить количество переданных аргументов командной строки
     if (argc > 4) {
         std::cerr << Error(tooManyArgumentsError).generate_error_message() << std::endl;

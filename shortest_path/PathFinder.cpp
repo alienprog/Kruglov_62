@@ -47,7 +47,7 @@ std::vector<Cell*> PathFinder::findPath() {
         }
         else {
             // Проверить всех четырёх соседей
-            for (int d = 0; d < 4 && !found; ++d) {
+            for (int d = 0; d < 4; ++d) {
                 int nx = curr->x + dx[d];   // координата столбца соседа
                 int ny = curr->y + dy[d];   // координата строки соседа
 

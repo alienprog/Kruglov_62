@@ -41,14 +41,6 @@ public:
     bool isValidCell(int row, int col) const;
 
     /**
-     * @brief ѕровер€ет, €вл€етс€ ли клетка проходимой (не стеной).
-     * @param row строка
-     * @param col столбец
-     * @return true если проходима, false иначе
-     */
-    bool isPassable(int row, int col) const;
-
-    /**
      * @brief —брасывает состо€ние всех клеток (visited, distance, parent).
      */
     void reset();

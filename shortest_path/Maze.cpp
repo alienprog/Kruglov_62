@@ -20,11 +20,6 @@ bool Maze::isValidCell(int row, int col) const {
     return row >= 0 && row < rows && col >= 0 && col < cols;
 }
 
-// Проверка, является ли клетка проходимой
-bool Maze::isPassable(int row, int col) const {
-    return isValidCell(row, col) && !grid[row][col].isWall;
-}
-
 // Сброс состояния всех клеток
 void Maze::reset() {
     for (int i = 0; i < rows; ++i)
