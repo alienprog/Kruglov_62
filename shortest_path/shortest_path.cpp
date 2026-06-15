@@ -5,42 +5,38 @@
 #include <sstream>
 #include <set>
 
-// Прочитать содержимое файла лабиринта, проверить открытие файла и наличие данных
-void readMazeFile(const std::string& filename, std::string& content, std::set<Error>& errors) {
-    // Открыть файл для чтения
+
+//Читает содержимое текстового файла, проверяя открытие файла и наличие данных.
+void readTextFromFile(const std::string& filename, std::string& content,
+    std::set<Error>& errors) {
+    // Открыть файл для чтения.
     std::ifstream file(filename);
-    // Если не удалось открыть, добавить ошибку и выйти
-    if (!file.is_open()) { errors.insert(Error(fileOpenError)); return; }
 
-    // Переместить указатель в конец файла, чтобы проверить размер
+    // Если файл не удалось открыть, добавить ошибку и завершить чтение.
+    if (!file.is_open()) {
+        errors.insert(Error(fileOpenError));
+        return;
+    }
+
+    // Переместить указатель чтения в конец файла, чтобы проверить размер.
     file.seekg(0, std::ios::end);
-    // Если файл пуст (размер 0), добавить ошибку и закрыть
-    if (file.tellg() == 0) { errors.insert(Error(fileEmptyError)); file.close(); return; }
 
-    // Вернуть указатель в начало для чтения
+    // Если файл пуст, добавить ошибку и завершить чтение.
+    if (file.tellg() == 0) {
+        errors.insert(Error(fileEmptyError));
+        file.close();
+        return;
+    }
+
+    // Вернуть указатель чтения в начало файла.
     file.seekg(0, std::ios::beg);
 
-    // Считать всё содержимое файла в строку
-    std::ostringstream ss;
-    ss << file.rdbuf();
-    content = ss.str();
+    // Считать всё содержимое файла в строковый поток.
+    std::ostringstream stream;
+    stream << file.rdbuf();
 
-    file.close();
-}
-
-// Прочитать содержимое файла координат, проверить открытие файла и наличие данных
-void readCoordsFile(const std::string& filename, std::string& content, std::set<Error>& errors) {
-    std::ifstream file(filename);
-    if (!file.is_open()) { errors.insert(Error(fileOpenError)); return; }
-
-    file.seekg(0, std::ios::end);
-    if (file.tellg() == 0) { errors.insert(Error(fileEmptyError)); file.close(); return; }
-
-    file.seekg(0, std::ios::beg);
-
-    std::ostringstream ss;
-    ss << file.rdbuf();
-    content = ss.str();
+    // Сохранить содержимое файла в выходной параметр.
+    content = stream.str();
 
     file.close();
 }
@@ -81,6 +77,7 @@ int main(int argc, const char* argv[]) {
         std::cerr << Error(tooManyArgumentsError).generate_error_message() << std::endl;
         return 1;
     }
+
     if (argc < 4) {
         std::cerr << Error(tooFewArgumentsError).generate_error_message() << std::endl;
         return 1;
@@ -90,24 +87,39 @@ int main(int argc, const char* argv[]) {
     std::set<Error> errors;
     std::string content;
     Maze maze;
-    int startRow = 0, startCol = 0, endRow = 0, endCol = 0;
+
+    int startRow = 0;
+    int startCol = 0;
+    int endRow = 0;
+    int endCol = 0;
 
     // Чтение и парсинг файла лабиринта
-    readMazeFile(argv[1], content, errors);
-    if (errors.empty()) parseMazeContent(content, maze, errors);
+    readTextFromFile(argv[1], content, errors);
+
+    if (errors.empty()) {
+        parseMazeContent(content, maze, errors);
+    }
 
     // Чтение и парсинг файла координат
-    if (errors.empty()) readCoordsFile(argv[2], content, errors);
-    if (errors.empty()) parseCoordsContent(content, maze,
-        startRow, startCol,
-        endRow, endCol, errors);
+    if (errors.empty()) {
+        readTextFromFile(argv[2], content, errors);
+    }
+
+    if (errors.empty()) {
+        parseCoordsContent(content, maze,
+            startRow, startCol,
+            endRow, endCol, errors);
+    }
 
     // Если есть ошибки - вывести и завершить
-    if (!errors.empty()) { printErrors(errors); return 1; }
+    if (!errors.empty()) {
+        printErrors(errors);
+        return 1;
+    }
 
     // Поиск кратчайшего пути
-    PathFinder pf(maze, startRow, startCol, endRow, endCol);
-    std::vector<Cell*> path = pf.findPath();
+    PathFinder pathFinder(maze, startRow, startCol, endRow, endCol);
+    std::vector<Cell*> path = pathFinder.findPath();
 
     // Запись результата в выходной файл
     if (!writeResult(argv[3], path)) {
